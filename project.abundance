@@ -4,6 +4,20 @@
   "y": 0,
   "uniqueID": "id-524",
   "name": "Fillet_in_Bounds",
+  "ioValues": [
+    {
+      "name": "Shape",
+      "ioValue": "__GEOMETRY_INPUT__"
+    },
+    {
+      "name": "Radius",
+      "ioValue": 10
+    },
+    {
+      "name": "Selection",
+      "ioValue": "__GEOMETRY_INPUT__"
+    }
+  ],
   "topLevel": true,
   "allAtoms": [
     {
@@ -20,8 +34,8 @@
     },
     {
       "atomType": "Code",
-      "x": 0.5357142857142857,
-      "y": 0.67966573816156,
+      "x": 0.5456349206349206,
+      "y": 0.5738161559888579,
       "uniqueID": "id-527",
       "ioValues": [
         {
@@ -38,7 +52,7 @@
         }
       ],
       "codeVersion": 1,
-      "code": "const Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"radius\", type: \"number\", defaultValue: 2 },\n  { inputName: \"region\", type: \"geometry\", defaultValue: null },\n];\n\nlet assembly = library[shape];\n\nlet edgeFilter;\nif (region !== null) {\n  let bounds = await GetBounds(region);\n  edgeFilter = (e) => e.inBox(bounds.min, bounds.max);\n} else {\n  edgeFilter = null;\n}\n\nreturn await AssemblyMap(assembly, async (leaf) => {\n  let solid = leaf.geometry[0];\n  let filleted = edgeFilter ? solid.fillet(radius, edgeFilter) : solid.fillet(radius);\n  return { ...leaf, geometry: [filleted] };\n});"
+      "code": "const Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"radius\", type: \"number\", defaultValue: 2 },\n  { inputName: \"region\", type: \"geometry\", defaultValue: null },\n];\n\nlet assembly = library[shape];\n\nlet edgeFilter = null;\nif (region !== null) {\n  let bounds = await GetBounds(region);\n  const tol = 1e-6;\n  edgeFilter = (e) => e.when(({ element }) => {\n    const bb = element.boundingBox.bounds;\n    return (\n      bb[0][0] >= bounds.min[0] - tol &&\n      bb[0][1] >= bounds.min[1] - tol &&\n      bb[0][2] >= bounds.min[2] - tol &&\n      bb[1][0] <= bounds.max[0] + tol &&\n      bb[1][1] <= bounds.max[1] + tol &&\n      bb[1][2] <= bounds.max[2] + tol\n    );\n  });\n}\n\nreturn await AssemblyMap(assembly, async (leaf) => {\n  let solid = leaf.geometry[0];\n  let filleted = edgeFilter ? solid.fillet(radius, edgeFilter) : solid.fillet(radius);\n  return { ...leaf, geometry: [filleted] };\n});"
     },
     {
       "atomType": "Rectangle",
@@ -77,17 +91,19 @@
     },
     {
       "atomType": "Rectangle",
-      "x": 0.27050264550264547,
-      "y": 0.8022284122562675,
+      "x": 0.26785714285714285,
+      "y": 0.818941504178273,
       "uniqueID": "id-543",
       "ioValues": [
         {
           "name": "x length",
-          "ioValue": 10
+          "ioValue": 120,
+          "currentEquation": "120"
         },
         {
           "name": "y length",
-          "ioValue": 10
+          "ioValue": 120,
+          "currentEquation": "120"
         }
       ]
     },
@@ -109,8 +125,8 @@
     },
     {
       "atomType": "Move",
-      "x": 0.4576719576719577,
-      "y": 0.807799442896936,
+      "x": 0.45833333333333337,
+      "y": 0.8272980501392758,
       "uniqueID": "id-551",
       "ioValues": [
         {
@@ -148,8 +164,8 @@
     },
     {
       "atomType": "Extrude",
-      "x": 0.2567460317460317,
-      "y": 0.43732590529247906,
+      "x": 0.4966931216931217,
+      "y": 0.3203342618384401,
       "uniqueID": "id-560",
       "ioValues": [
         {
@@ -165,8 +181,8 @@
     },
     {
       "atomType": "GitHubMolecule",
-      "x": 0.13624338624338625,
-      "y": 0.7353760445682451,
+      "x": 0.42857142857142855,
+      "y": 0.22284122562674097,
       "uniqueID": "id-578",
       "name": "Concentric_Circles",
       "ioValues": [
@@ -305,23 +321,41 @@
       "unitsKey": "Unitless",
       "fileTypeVersion": 1,
       "lastReloadedFromGithubAt": 1777409097289
+    },
+    {
+      "atomType": "Input",
+      "x": 0.025384615384615384,
+      "y": 0.31197771587743733,
+      "uniqueID": "id-594",
+      "name": "Shape",
+      "type": "geometry"
+    },
+    {
+      "atomType": "Input",
+      "x": 0.025384615384615384,
+      "y": 0.49860724233983283,
+      "uniqueID": "id-597",
+      "name": "Radius"
+    },
+    {
+      "atomType": "Input",
+      "x": 0.025384615384615384,
+      "y": 0.6768802228412256,
+      "uniqueID": "id-600",
+      "name": "Selection",
+      "type": "geometry"
     }
   ],
   "allConnectors": [
     {
+      "ap2Name": "number or geometry",
+      "ap1ID": "id-527",
+      "ap2ID": "id-525"
+    },
+    {
       "ap2Name": "geometry",
       "ap1ID": "id-535",
       "ap2ID": "id-539"
-    },
-    {
-      "ap2Name": "shape",
-      "ap1ID": "id-539",
-      "ap2ID": "id-527"
-    },
-    {
-      "ap2Name": "number or geometry",
-      "ap1ID": "id-539",
-      "ap2ID": "id-525"
     },
     {
       "ap2Name": "geometry",
@@ -334,14 +368,24 @@
       "ap2ID": "id-551"
     },
     {
-      "ap2Name": "region",
-      "ap1ID": "id-551",
-      "ap2ID": "id-527"
-    },
-    {
       "ap2Name": "geometry",
       "ap1ID": "id-578",
       "ap2ID": "id-560"
+    },
+    {
+      "ap2Name": "shape",
+      "ap1ID": "id-594",
+      "ap2ID": "id-527"
+    },
+    {
+      "ap2Name": "radius",
+      "ap1ID": "id-597",
+      "ap2ID": "id-527"
+    },
+    {
+      "ap2Name": "region",
+      "ap1ID": "id-600",
+      "ap2ID": "id-527"
     }
   ],
   "unitsKey": "Unitless",
